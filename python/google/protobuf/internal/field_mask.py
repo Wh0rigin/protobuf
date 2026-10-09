@@ -218,11 +218,14 @@ class _FieldMaskTree(object):
     node = self._root
     for name in path.split('.'):
       if name not in node:
-        node[name] = {}
-      elif not node[name]:
-        # Pre-existing empty node implies we already have this entire tree.
-        return
-      node = node[name]
+        child = {}
+        node[name] = child
+      else:
+        child = node[name]
+        if not child:
+          # Pre-existing empty node implies we already have this entire tree.
+          return
+      node = child
     # Remove any sub-trees we might have had.
     node.clear()
 
@@ -242,10 +245,11 @@ class _FieldMaskTree(object):
     for name in path.split('.'):
       if name not in node:
         return
-      elif not node[name]:
+      child = node[name]
+      if not child:
         intersection.AddPath(path)
         return
-      node = node[name]
+      node = child
     intersection.AddLeafNodes(path, node)
 
   def AddLeafNodes(self, prefix, node):
